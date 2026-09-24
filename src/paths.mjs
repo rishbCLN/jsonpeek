@@ -43,6 +43,23 @@ export function toJsPath(segments) {
 }
 
 /**
+ * Reconstruct a segment list by following parent pointers from a leaf node up to
+ * the root. The walkers below link each stack entry to its parent instead of
+ * copying the whole prefix array at every level; copying was O(depth) per node,
+ * making a deep chain O(depth^2) in time and allocations (a ~200k-deep document
+ * would hang or exhaust the heap). Rebuilding once, only when a path is emitted,
+ * keeps the walk linear in the size of the output it produces.
+ * @param {{ parent: object|null, seg: object|null }} node
+ * @returns {Array<{key?:string,index?:number}>}
+ */
+function segmentsOf(node) {
+  const segs = [];
+  for (let n = node; n && n.seg; n = n.parent) segs.push(n.seg);
+  segs.reverse();
+  return segs;
+}
+
+/**
  * Enumerate every leaf (scalar, or empty object/array) as { segments, value },
  * in document order.
  * @param {*} value
@@ -50,28 +67,29 @@ export function toJsPath(segments) {
  */
 export function leafPaths(value) {
   const out = [];
-  const stack = [{ v: value, segs: [] }];
+  const stack = [{ v: value, parent: null, seg: null }];
   while (stack.length) {
-    const { v, segs } = stack.pop();
+    const node = stack.pop();
+    const v = node.v;
     if (Array.isArray(v)) {
       if (v.length === 0) {
-        out.push({ segments: segs, value: v });
+        out.push({ segments: segmentsOf(node), value: v });
         continue;
       }
       for (let i = v.length - 1; i >= 0; i--) {
-        stack.push({ v: v[i], segs: [...segs, { index: i }] });
+        stack.push({ v: v[i], parent: node, seg: { index: i } });
       }
     } else if (v && typeof v === 'object') {
       const keys = Object.keys(v);
       if (keys.length === 0) {
-        out.push({ segments: segs, value: v });
+        out.push({ segments: segmentsOf(node), value: v });
         continue;
       }
       for (let i = keys.length - 1; i >= 0; i--) {
-        stack.push({ v: v[keys[i]], segs: [...segs, { key: keys[i] }] });
+        stack.push({ v: v[keys[i]], parent: node, seg: { key: keys[i] } });
       }
     } else {
-      out.push({ segments: segs, value: v });
+      out.push({ segments: segmentsOf(node), value: v });
     }
   }
   return out;
@@ -97,19 +115,19 @@ export function listPaths(value, opts = {}) {
  */
 export function findKey(value, key) {
   const out = [];
-  const stack = [{ v: value, segs: [] }];
+  const stack = [{ v: value, parent: null, seg: null }];
   while (stack.length) {
-    const { v, segs } = stack.pop();
-    const last = segs[segs.length - 1];
-    if (last && 'key' in last && last.key === key) out.push(segs);
+    const node = stack.pop();
+    const v = node.v;
+    if (node.seg && 'key' in node.seg && node.seg.key === key) out.push(segmentsOf(node));
     if (Array.isArray(v)) {
       for (let i = v.length - 1; i >= 0; i--) {
-        stack.push({ v: v[i], segs: [...segs, { index: i }] });
+        stack.push({ v: v[i], parent: node, seg: { index: i } });
       }
     } else if (v && typeof v === 'object') {
       const keys = Object.keys(v);
       for (let i = keys.length - 1; i >= 0; i--) {
-        stack.push({ v: v[keys[i]], segs: [...segs, { key: keys[i] }] });
+        stack.push({ v: v[keys[i]], parent: node, seg: { key: keys[i] } });
       }
     }
   }

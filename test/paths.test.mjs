@@ -110,3 +110,42 @@ test('getByPath resolves values and returns undefined for misses', () => {
 test('getByPath accepts pre-parsed segments', () => {
   assert.equal(getByPath(doc, parsePath('user.name')), 'Ada');
 });
+
+// Regression: the tree walkers must scale ~linearly with depth. They once copied
+// the whole path prefix at every node (`[...segs, seg]`), which is O(depth^2) in
+// time and allocations; a ~200k-deep document would hang for minutes or exhaust
+// the heap. With parent-linked reconstruction this finishes in milliseconds.
+test('deeply nested input is walked without O(n^2) blow-up', { timeout: 20000 }, () => {
+  const DEPTH = 200000;
+
+  // Built iteratively (no recursion, no JSON.parse) so the test itself is safe.
+  let deepObj = 0;
+  for (let i = 0; i < DEPTH; i++) deepObj = { a: deepObj };
+  let deepArr = 0;
+  for (let i = 0; i < DEPTH; i++) deepArr = [deepArr];
+
+  const objLeaves = leafPaths(deepObj);
+  assert.equal(objLeaves.length, 1);
+  assert.equal(objLeaves[0].segments.length, DEPTH);
+  assert.equal(objLeaves[0].value, 0);
+
+  const arrLeaves = leafPaths(deepArr);
+  assert.equal(arrLeaves.length, 1);
+  assert.equal(arrLeaves[0].segments.length, DEPTH);
+
+  // findKey visits every node; a miss returns [] (exercises the full traversal).
+  assert.deepEqual(findKey(deepObj, 'missing'), []);
+
+  // getByPath resolves a full-depth accessor.
+  const segs = Array.from({ length: DEPTH }, () => ({ key: 'a' }));
+  assert.equal(getByPath(deepObj, segs), 0);
+});
+
+test('findKey still matches a key repeated at every level (order preserved)', () => {
+  let nested = 'leaf';
+  for (let i = 0; i < 2000; i++) nested = { a: nested };
+  const matches = findKey(nested, 'a');
+  assert.equal(matches.length, 2000);
+  assert.equal(matches[0].length, 1); // shallowest match first (document order)
+  assert.equal(matches[matches.length - 1].length, 2000); // deepest match last
+});
