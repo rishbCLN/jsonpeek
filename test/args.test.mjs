@@ -10,6 +10,7 @@ test('parseArgs: defaults with no args', () => {
   assert.equal(r.listPaths, false);
   assert.equal(r.jq, false);
   assert.equal(r.depth, null);
+  assert.equal(r.maxArray, null);
   assert.equal(r.compact, false);
   assert.equal(r.color, undefined);
   assert.equal(r.help, false);
@@ -39,6 +40,13 @@ test('parseArgs: --depth valid and invalid', () => {
   assert.equal(parseArgs(['--depth=0']).depth, 0);
   assert.ok(parseArgs(['--depth', '-1']).errors.length);
   assert.ok(parseArgs(['--depth', 'x']).errors.length);
+});
+
+test('parseArgs: --max-array valid and invalid', () => {
+  assert.equal(parseArgs(['--max-array', '10']).maxArray, 10);
+  assert.equal(parseArgs(['--max-array=3']).maxArray, 3);
+  assert.ok(parseArgs(['--max-array', '-2']).errors.length);
+  assert.ok(parseArgs(['--max-array', 'nope']).errors.length);
 });
 
 test('parseArgs: --compact / -c', () => {

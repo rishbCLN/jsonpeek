@@ -12,6 +12,7 @@ Options:
       --paths         Print the path to every leaf value
       --jq            Emit paths in jq form (leading dot); default is JS form
       --depth <n>     Collapse objects/arrays deeper than n levels
+      --max-array <n> Show only the first n array elements (\u2026 N more)
   -c, --compact       Print on a single line (no indentation)
       --color         Force colored output
       --no-color      Disable colored output
@@ -32,7 +33,7 @@ Notes:
 Exit codes: 0 ok, 1 runtime failure (parse error / path not found), 2 usage error.
 `;
 
-const VALUE_OPTS = new Set(['--path', '--find', '--depth']);
+const VALUE_OPTS = new Set(['--path', '--find', '--depth', '--max-array']);
 
 /**
  * Parse argv (excluding node + script path).
@@ -40,6 +41,7 @@ const VALUE_OPTS = new Set(['--path', '--find', '--depth']);
  * @returns {{
  *   file: string|null, path: string|null, find: string|null,
  *   listPaths: boolean, jq: boolean, depth: number|null, compact: boolean,
+ *   maxArray: number|null,
  *   color: 'always'|'never'|undefined, help: boolean, version: boolean, errors: string[]
  * }}
  */
@@ -51,6 +53,7 @@ export function parseArgs(argv) {
     listPaths: false,
     jq: false,
     depth: null,
+    maxArray: null,
     compact: false,
     color: undefined,
     help: false,
@@ -124,6 +127,20 @@ export function parseArgs(argv) {
           result.errors.push(`invalid --depth "${v}" (must be a non-negative integer)`);
         } else {
           result.depth = n;
+        }
+        break;
+      }
+      case '--max-array': {
+        const v = takeValue();
+        if (v == null) {
+          result.errors.push('--max-array requires a value');
+          break;
+        }
+        const n = Number(v);
+        if (!Number.isInteger(n) || n < 0) {
+          result.errors.push(`invalid --max-array "${v}" (must be a non-negative integer)`);
+        } else {
+          result.maxArray = n;
         }
         break;
       }

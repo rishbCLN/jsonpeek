@@ -75,6 +75,7 @@ async function main(argv) {
   }
 
   const depth = opts.depth == null ? undefined : opts.depth;
+  const maxArray = opts.maxArray == null ? undefined : opts.maxArray;
 
   try {
     // 3a. --path: print the value at a single path.
@@ -84,7 +85,7 @@ async function main(argv) {
         process.stderr.write(`${c.red('error:')} no value at path ${c.bold(opts.path)}\n`);
         return 1;
       }
-      process.stdout.write(`${format(picked, { styler: c, depth, compact: opts.compact })}\n`);
+      process.stdout.write(`${format(picked, { styler: c, depth, maxArray, compact: opts.compact })}\n`);
       return 0;
     }
 
@@ -106,7 +107,7 @@ async function main(argv) {
     }
 
     // 3d. default: pretty-print the whole document.
-    process.stdout.write(`${format(data, { styler: c, depth, compact: opts.compact })}\n`);
+    process.stdout.write(`${format(data, { styler: c, depth, maxArray, compact: opts.compact })}\n`);
     return 0;
   } catch (err) {
     // e.g. pathological nesting tripping the format depth guard.
