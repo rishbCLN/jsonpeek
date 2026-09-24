@@ -77,6 +77,42 @@ test('cleanReason strips version-specific chatter', () => {
   assert.match(cleanReason('Unexpected end of JSON input'), /unexpected end of input/);
 });
 
+test('cleanReason strips V8 "is not valid JSON" snippet even when clipped with "..."', () => {
+  // Node >=20/V8 clips the embedded source with a trailing and/or leading ellipsis
+  // that sits OUTSIDE the quotes; the whole tail must still be removed.
+  assert.equal(
+    cleanReason('Unexpected token \'x\', "xxxxxxxxxx"... is not valid JSON'),
+    "Unexpected token 'x'",
+  );
+  assert.equal(
+    cleanReason('Unexpected token \'}\', ..."aaaaaaa": }" is not valid JSON'),
+    "Unexpected token '}'",
+  );
+  assert.equal(
+    cleanReason('Unexpected token \'y\', ..."middle"... is not valid JSON'),
+    "Unexpected token 'y'",
+  );
+  // The token itself may be a comma; the first comma must not be mistaken for the delimiter.
+  assert.equal(
+    cleanReason('Unexpected token \',\', "[1,,2]" is not valid JSON'),
+    "Unexpected token ','",
+  );
+});
+
+test('parseJson never leaks V8\'s "is not valid JSON" chatter for long input', () => {
+  // A long invalid document triggers V8's clipped-snippet message on Node >=20.
+  assert.throws(
+    () => parseJson('x'.repeat(80) + ' bad'),
+    (err) => {
+      assert.ok(err instanceof JsonParseError);
+      assert.doesNotMatch(err.reason, /is not valid JSON/);
+      assert.doesNotMatch(err.reason, /\.\.\./);
+      assert.doesNotMatch(err.message, /is not valid JSON/);
+      return true;
+    },
+  );
+});
+
 test('caretSnippet produces a two-line gutter + caret', () => {
   const snip = caretSnippet('  "a": 1', 1, 3);
   const lines = snip.split('\n');

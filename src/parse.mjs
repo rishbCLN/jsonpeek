@@ -61,7 +61,10 @@ export function cleanReason(message) {
   let m = String(message);
   m = m.replace(/\s+in JSON at position \d+.*$/i, '');
   m = m.replace(/\s+at position \d+.*$/i, '');
-  m = m.replace(/,\s*"[\s\S]*?"\s*is not valid JSON.*$/i, '');
+  // Node >=20/V8's "Unexpected token 'X', \"<snippet>\" is not valid JSON" carries no
+  // position; the embedded snippet may be clipped with a leading and/or trailing "..."
+  // (outside the quotes). Strip the whole ", <snippet> is not valid JSON" tail.
+  m = m.replace(/,\s*(?:\.\.\.)?"[\s\S]*?"(?:\.\.\.)?\s*is not valid JSON.*$/i, '');
   m = m.replace(/^unexpected end of (?:json )?input.*$/i, 'unexpected end of input');
   return m.trim() || 'could not parse input';
 }
