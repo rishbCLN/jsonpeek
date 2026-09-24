@@ -1,0 +1,41 @@
+{
+  "name": "jsonpeek",
+  "version": "0.1.0",
+  "description": "A fast terminal JSON viewer that also hands you the jq path to any value — zero dependencies.",
+  "type": "module",
+  "bin": {
+    "jsonpeek": "bin/jsonpeek.mjs"
+  },
+  "scripts": {
+    "test": "node --test",
+    "start": "node bin/jsonpeek.mjs"
+  },
+  "keywords": [
+    "json",
+    "viewer",
+    "pretty-print",
+    "prettify",
+    "jq",
+    "json-path",
+    "colorize",
+    "cli",
+    "developer-tools",
+    "zero-dependency"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/jsonpeek.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/jsonpeek/issues"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/jsonpeek#readme"
+}
