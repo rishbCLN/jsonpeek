@@ -21,7 +21,7 @@ to keep it that way: fast, obvious, pipe-friendly, and cross-platform.
 ## Getting started
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/jsonpeek.git
+git clone https://github.com/rishbCLN/jsonpeek.git
 cd jsonpeek
 node --test                       # run the suite
 echo '{"a":{"b":1}}' | node bin/jsonpeek.mjs

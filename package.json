@@ -32,10 +32,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/jsonpeek.git"
+    "url": "https://github.com/rishbCLN/jsonpeek.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_USERNAME/jsonpeek/issues"
+    "url": "https://github.com/rishbCLN/jsonpeek/issues"
   },
-  "homepage": "https://github.com/YOUR_USERNAME/jsonpeek#readme"
+  "homepage": "https://github.com/rishbCLN/jsonpeek#readme"
 }

@@ -1,6 +1,6 @@
 # jsonpeek
 
-[![CI](https://github.com/YOUR_USERNAME/jsonpeek/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/jsonpeek/actions/workflows/ci.yml)
+[![CI](https://github.com/rishbCLN/jsonpeek/actions/workflows/ci.yml/badge.svg)](https://github.com/rishbCLN/jsonpeek/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/jsonpeek.svg)](https://www.npmjs.com/package/jsonpeek)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
