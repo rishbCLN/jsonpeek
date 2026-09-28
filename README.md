@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/rishbCLN/jsonpeek/actions/workflows/ci.yml/badge.svg)](https://github.com/rishbCLN/jsonpeek/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/jsonpeek.svg)](https://www.npmjs.com/package/jsonpeek)
+[![node](https://img.shields.io/node/v/jsonpeek.svg)](https://www.npmjs.com/package/jsonpeek)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **A fast terminal JSON viewer that also hands you the jq path to any value.**
